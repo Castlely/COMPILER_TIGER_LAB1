@@ -1,0 +1,114 @@
+private Token nextTokenInternal() throws Exception
+  {
+	  ////// I ADD SOMETHING BELOW
+	  Integer linenum=0;
+	  ////// END
+	  
+    int c = this.fstream.read();
+    if (-1 == c)
+      // The value for "lineNum" is now "null",
+      // you should modify this to an appropriate
+      // line number for the "EOF" token.
+      return new Token(Kind.TOKEN_EOF, null);
+
+    // skip all kinds of "blanks"
+    while (' ' == c || '\t' == c || '\n' == c) 
+    {
+    	//////I ADD SOMETHING BELOW
+    	if(c=='\n')
+    		linenum++;   
+    	////// END
+    	
+      c = this.fstream.read();
+    }
+    
+ 
+    if (-1 == c)
+      return new Token(Kind.TOKEN_EOF, linenum);
+
+    this.fstream.mark(40);
+    switch (c) {
+    case '+':
+      return new Token(Kind.TOKEN_ADD, linenum);
+      
+//////I ADD SOMETHING BELOW
+      
+    case '&':
+    	if(readch('&'))
+    		return new Token(Kind.TOKEN_ADD,linenum,"&&");
+    	else
+    		return new Token(Kind.TOKEN_BITADD,linenum);
+    case '=':
+    	if(readch('='))
+    		return new Token(Kind.TOKEN_EQUAL,linenum,"==");
+    	else 
+    		return new Token(Kind.TOKEN_ASSIGN,linenum);
+////// END      
+      
+  /*    
+      default:
+      // Lab 1, exercise 2: supply missing code to
+      // lex other kinds of tokens.
+      // Hint: think carefully about the basic
+      // data structure and algorithms. The code
+      // is not that much and may be less than 50 lines. If you
+      // find you are writing a lot of code, you
+      // are on the wrong way.
+
+    	
+      new Todo();
+     
+      return null;
+  */    
+    }
+    
+    ////// I ADD
+    if(Character.isDigit(c))
+    {
+    	int v=0;
+    	do
+    	{
+    		v=10*v+Character.digit(c, 10);
+    		c=this.fstream.read();
+    	}
+    	while(Character.isDigit(c));
+    	if(c!='.')
+    	{
+    		String m=String.valueOf(v);
+    		return new Token(Kind.TOKEN_NUM,linenum,m);
+    	}
+    	float x=v;
+    	float d=10;
+    	for(;;)
+    	{
+    		c=this.fstream.read();
+    		if(!Character.isDigit(c))
+    			break;
+    		x=x+Character.digit(c, 10)/d;
+    		d=d*10;
+    	}
+    	String mm=String.valueOf(x);
+    	return new Token(Kind.TOKEN_NUM,linenum,mm);
+    	
+    }
+    
+    if(Character.isLetter(c))
+    {
+    	StringBuffer b=new StringBuffer();
+    	do
+    	{
+    		b.append(c);
+    		c=this.fstream.read();
+    	}
+    	while(Character.isLetterOrDigit(c));
+    	String s=b.toString();
+    	Token t=new Token(Kind.TOKEN_ID,linenum,s);
+    	return t;
+    }
+    
+    Token t=new Token(Kind.TOKEN_ID,c);
+    c=' ';
+    return t;
+    
+    ////// END
+  }
